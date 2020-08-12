@@ -10,7 +10,9 @@ void settings() {
 }
 
 void setup() {
-  fluid = new Fluid(0.2, 0, 0.0000001);
+  float diffusion = 0;
+  float viscosity = 0.0000001;
+  fluid = new Fluid(0.2, diffusion, viscosity);
 }
 
 void mouseDragged() {
@@ -32,8 +34,21 @@ void mouseDragged() {
   fluid.addVelocity(mouseX/SCALE, mouseY/SCALE, amtX, amtY);
 }
 
+void mousePressed() {
+  fluid.addDensity(mouseX/SCALE, mouseY/SCALE, 1000);
+  float amtX = random(0.0, 1.0);
+  float amtY = random(0.0, 1.0);
+  fluid.addVelocity(mouseX/SCALE, mouseY/SCALE, amtX, amtY);
+}
+
 void draw() {
   background(0);
+  if (mousePressed && (mouseButton == LEFT) && (mouseX - pmouseX == 0) && (mouseY - pmouseY == 0)) {
+    fluid.addDensity(mouseX/SCALE, mouseY/SCALE, 400);
+    float amtX = random(-0.3, 0.3);
+    float amtY = random(-0.3, 0.0);
+    fluid.addVelocity(mouseX/SCALE, mouseY/SCALE, amtX, amtY);
+  }
   fluid.step();
   fluid.renderD();
   fluid.fadeD();
