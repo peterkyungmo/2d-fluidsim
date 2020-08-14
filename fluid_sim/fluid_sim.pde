@@ -1,13 +1,14 @@
 import controlP5.*;
 
 ControlP5 cp5;
-float diffusion = 0.0000001;// min=0.0000001, max=0.00015
+float diffusion = 0.000001;// min=0.0000001, max=0.00015
 float viscosity = 0.0000001;// min=0.0000001, max=0.0006
 
 final int N = 128;
 final int iter = 16;
 final int SCALE = 6;
 float t = 0;
+int radius = 1;
 
 Fluid fluid;
 
@@ -16,18 +17,32 @@ void settings() {
 }
 
 void setup() {
-  cp5 = new ControlP5(this);
   fluid = new Fluid(0.2, diffusion, viscosity);
+  addGUI();
+}
+
+void addGUI() {
+  cp5 = new ControlP5(this);
   cp5.addSlider("diffusion")
     .setPosition(600, 50)
     .setRange(0.0000001, 0.00015);
   cp5.addSlider("viscosity")
     .setPosition(600, 70)
     .setRange(0.0000001, 0.0006);
+  cp5.addSlider("radius")
+    .setPosition(600, 90)
+    .setRange(1, 20);
 }
 
 void mouseDragged() {
-  fluid.addDensity(mouseX/SCALE, mouseY/SCALE, 100);
+  int originX = mouseX - radius;
+  int originY = mouseY - radius;
+  
+  for (int i = originX; i <= mouseX + radius/SCALE; i++) {
+    for (int j = originY; j <= mouseY + radius/SCALE; j++) {
+      fluid.addDensity(i/SCALE, j/SCALE, 100);
+    }
+  }
   float amtX = 0;
   float amtY = 0;
   if (mouseY - pmouseY > 0) {
@@ -45,17 +60,18 @@ void mouseDragged() {
   fluid.addVelocity(mouseX/SCALE, mouseY/SCALE, amtX, amtY);
 }
 
-void mousePressed() {
-  fluid.addDensity(mouseX/SCALE, mouseY/SCALE, 1000);
-  float amtX = random(0.0, 1.0);
-  float amtY = random(0.0, 1.0);
-  fluid.addVelocity(mouseX/SCALE, mouseY/SCALE, amtX, amtY);
-}
-
 void draw() {
   background(0);
   if (mousePressed && (mouseButton == LEFT) && (mouseX - pmouseX == 0) && (mouseY - pmouseY == 0)) {
-    fluid.addDensity(mouseX/SCALE, mouseY/SCALE, 400);
+    //addDensity based on radius of pixel
+    int originX = mouseX - radius;
+    int originY = mouseY - radius;
+    
+    for (int i = originX; i <= mouseX + radius/SCALE; i++) {
+      for (int j = originY; j <= mouseY + radius/SCALE; j++) {
+        fluid.addDensity(i/SCALE, j/SCALE, 400);
+      }
+    }
     float amtX = random(-0.3, 0.3);
     float amtY = random(-0.3, 0.0);
     fluid.addVelocity(mouseX/SCALE, mouseY/SCALE, amtX, amtY);
